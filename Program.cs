@@ -60,6 +60,13 @@ builder.Services.AddEndpointsApiExplorer();
 
 var app = builder.Build();
 
+// Auto migrate database 
+using (var scope = app.Services.CreateScope())
+{
+    var dbContext = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+    dbContext.Database.Migrate(); // Tự động tạo bảng nếu chưa có
+}
+
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
