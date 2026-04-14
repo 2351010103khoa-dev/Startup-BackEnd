@@ -1,0 +1,10 @@
+# Chặn các thư mục tự sinh ra của .NET
+bin/
+obj/
+
+# Chặn tải file api key và password
+appsettings.Development.json
+
+# Chặn thư mục của Visual Studio
+.vs/
+*.user
