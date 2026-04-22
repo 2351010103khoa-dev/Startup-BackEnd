@@ -50,22 +50,28 @@ builder.Services.AddSwaggerGen(c =>
         }
     });
 });
-// Khởi tạo ConnectionStrings
-var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
+// khởi tạo chuỗi kết nối
+var defaultConn = builder.Configuration.GetConnectionString("DefaultConnection");
+var envDatabaseUrl = builder.Configuration["DATABASE_URL"];
 
-// Lấy biến môi trường
-var databaseUrl = Environment.GetEnvironmentVariable("DATABASE_URL");
+// nếu có DATABASE_URL thì xài, không thì xài chuỗi mặc định trong appsettings.json
+var rawUrl = !string.IsNullOrEmpty(envDatabaseUrl) ? envDatabaseUrl : defaultConn;
+string finalConnectionString = "";
 
-if (!string.IsNullOrEmpty(databaseUrl))
+if (!string.IsNullOrEmpty(rawUrl) && (rawUrl.StartsWith("postgres://") || rawUrl.StartsWith("postgresql://")))
 {
-    var databaseUri = new Uri(databaseUrl);
+    var databaseUri = new Uri(rawUrl);
     var userInfo = databaseUri.UserInfo.Split(':');
 
-    connectionString = $"Host={databaseUri.Host};Port={databaseUri.Port};Database={databaseUri.LocalPath.TrimStart('/')};Username={userInfo[0]};Password={userInfo[1]};Ssl Mode=Require;Trust Server Certificate=true;";
+    finalConnectionString = $"Host={databaseUri.Host};Port={databaseUri.Port};Database={databaseUri.LocalPath.TrimStart('/')};Username={userInfo[0]};Password={userInfo[1]};Ssl Mode=Require;Trust Server Certificate=true;";
 }
-
+else
+{
+    finalConnectionString = rawUrl;
+}
+// kết nối dbcontext 
 builder.Services.AddDbContext<AppDbContext>(options =>
-    options.UseNpgsql(connectionString));
+    options.UseNpgsql(finalConnectionString));
 
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
