@@ -77,6 +77,17 @@ builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 
+// cấu hình CORS 
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowAll", policy =>
+    {
+        policy.AllowAnyOrigin()   // cho phép mọi domain => mai mốt chỉnh lại domain cụ thể của fe sau
+              .AllowAnyMethod()   // cho phép mọi method HTTP (GET, POST, PUT, DELETE, OPTIONS)
+              .AllowAnyHeader();  // cho phép mọi loại Header (kể cả Header chứa Token)
+    });
+});
+
 var app = builder.Build();
 
 // Auto migrate database 
@@ -86,12 +97,11 @@ using (var scope = app.Services.CreateScope())
     dbContext.Database.Migrate(); // Tự động tạo bảng nếu chưa có
 }
 
-// Configure the HTTP request pipeline.
-if (app.Environment.IsDevelopment())
-{
-    app.UseSwagger();
-    app.UseSwaggerUI();
-}
+
+app.UseSwagger();
+app.UseSwaggerUI();
+
+app.UseCors("AllowAll");
 
 app.UseAuthentication();
 
