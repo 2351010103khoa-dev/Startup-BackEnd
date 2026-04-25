@@ -8,6 +8,7 @@ using System.Security.Claims;
 using System.Text;
 using Microsoft.EntityFrameworkCore;
 using System.Security.Claims;
+using StartupBackend.Services;
 
 namespace StartupBackend.Controllers
 {
@@ -17,11 +18,13 @@ namespace StartupBackend.Controllers
     {
         private readonly AppDbContext _context;
         private readonly IConfiguration _configuration;
+        private readonly IEmailService _emailService;
 
-        public AuthController(AppDbContext context, IConfiguration configuration)
+        public AuthController(AppDbContext context, IConfiguration configuration, IEmailService emailService)
         {
             _context = context;
             _configuration = configuration;
+            _emailService = emailService;
         }
 
         // API đăng nhập
@@ -95,7 +98,96 @@ namespace StartupBackend.Controllers
             return Ok(new { message = "Mật khẩu đã được đổi, hãy đăng nhập lại." });
         }
 
-        
-        
+        // quên mật khẩu (/auth/forgot-password)
+        [HttpPost("forgot-password")]
+        public async Task<IActionResult> ForgotPassword([FromBody] ForgotPasswordRequest request)
+        {
+            // tìm user theo Email 
+            var user = await _context.TaiKhoans.FirstOrDefaultAsync(u => u.Email == request.Email);
+
+            if (user == null)
+            {
+                return Ok(new { message = "Liên kết đặt lại mật khẩu đã được gửi." });
+            }
+
+            // tạo token chứa email, hạn 15p
+            var tokenHandler = new JwtSecurityTokenHandler();
+            var key = Encoding.UTF8.GetBytes(_configuration["Jwt:Key"]!); 
+
+            var tokenDescriptor = new SecurityTokenDescriptor
+            {
+                Subject = new ClaimsIdentity(new[]
+                {
+                    new Claim(ClaimTypes.Email, user.Email)
+                }),
+                Expires = DateTime.UtcNow.AddMinutes(15),
+                SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
+            };
+
+            var token = tokenHandler.CreateToken(tokenDescriptor);
+            var resetToken = tokenHandler.WriteToken(token);
+
+            // GỬI MAIL THẬT
+            var frontendResetUrl = $"http://localhost:3000/reset-password?token={resetToken}"; // Sửa lại link này theo Frontend của bro
+
+            var emailBody = $@"
+                <div style='font-family: Arial, sans-serif; padding: 20px;'>
+                    <h2 style='color: #333;'>Yêu cầu đặt lại mật khẩu</h2>
+                    <p>Chào bạn,</p>
+                    <p>Hệ thống nhận được yêu cầu đặt lại mật khẩu cho tài khoản <strong>{user.Email}</strong>.</p>
+                    <p>Vui lòng click vào nút bên dưới để tiến hành đổi mật khẩu mới (Liên kết này chỉ có hiệu lực trong 15 phút):</p>
+                    
+                    <a href='{frontendResetUrl}' style='display: inline-block; padding: 12px 24px; background-color: #007bff; color: white; text-decoration: none; border-radius: 6px; font-weight: bold; margin: 20px 0;'>ĐẶT LẠI MẬT KHẨU</a>
+                    
+                </div>";
+
+            await _emailService.SendEmailAsync(user.Email, "Đặt lại mật khẩu", emailBody);
+
+            return Ok(new { message = "Liên kết đặt lại mật khẩu đã được gửi." });
+        }
+
+        // đặt lại mật khẩu (/auth/reset-password)
+        [HttpPost("reset-password")]
+        public async Task<IActionResult> ResetPassword([FromBody] ResetPasswordRequest request)
+        {
+            var tokenHandler = new JwtSecurityTokenHandler();
+            var key = Encoding.UTF8.GetBytes(_configuration["Jwt:Key"]!);
+
+            try
+            {
+                // giải mã token để lấy thông tin
+                tokenHandler.ValidateToken(request.Token, new TokenValidationParameters
+                {
+                    ValidateIssuerSigningKey = true,
+                    IssuerSigningKey = new SymmetricSecurityKey(key),
+                    ValidateIssuer = false,
+                    ValidateAudience = false,
+                    ClockSkew = TimeSpan.Zero
+                }, out SecurityToken validatedToken);
+
+                var jwtToken = (JwtSecurityToken)validatedToken;
+                var email = jwtToken.Claims.FirstOrDefault(x => x.Type == ClaimTypes.Email || x.Type == "email");
+                if(email == null)
+                {
+                    return BadRequest(new { message = "Lỗi token, không tìm thấy email!" });
+                }
+                var emailValue = email.Value;
+
+                // tìm user theo email từ token mới giải mã
+                var user = await _context.TaiKhoans.FirstOrDefaultAsync(u => u.Email == emailValue);
+                if (user == null) return BadRequest(new { message = "Người dùng không tồn tại!" });
+
+                user.MatKhau = BCrypt.Net.BCrypt.HashPassword(request.NewPassword);
+                await _context.SaveChangesAsync();
+
+                return Ok(new { message = "Đổi mật khẩu thành công! Vui lòng đăng nhập lại." });
+            }
+            catch (Exception ex)
+            {
+                // Nếu Token sai, bịa đặt hoặc hết hạn
+                return BadRequest(new { message = "Error: " + ex.Message });
+            }
+        }
+
     }
 }

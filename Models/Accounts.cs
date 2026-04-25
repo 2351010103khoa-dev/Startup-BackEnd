@@ -18,7 +18,7 @@ namespace StartupBackend.Models
         public string HoTenNguoiDung { get; set; }
         public string TrangThai { get; set; }
 
-        // 👉 CHỐT CHẶN PHÂN QUYỀN ĐA KHÁCH HÀNG
+        // phan quyen theo tenant
         [Required]
         public string TenantId { get; set; }
 
@@ -27,7 +27,7 @@ namespace StartupBackend.Models
         [ForeignKey("VaiTroId")]
         public Roles VaiTro { get; set; }
 
-        // Khóa ngoại tới ChuongTrinhDaoTao (có thể null nếu là Admin/Staff bình thường)
+        // khoa ngoai toi chuong trinh dao tao
         public string? MaCTDT { get; set; }
         [ForeignKey("MaCTDT")]
         public Programs ChuongTrinhDaoTao { get; set; }
