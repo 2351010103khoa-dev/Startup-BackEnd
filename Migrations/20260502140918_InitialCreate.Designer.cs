@@ -12,7 +12,7 @@ using StartupBackend.Data;
 namespace StartupBackend.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20260406084624_InitialCreate")]
+    [Migration("20260502140918_InitialCreate")]
     partial class InitialCreate
     {
         /// <inheritdoc />
@@ -50,9 +50,18 @@ namespace StartupBackend.Migrations
                     b.Property<string>("MaCTDT")
                         .HasColumnType("text");
 
+                    b.Property<string>("MaKhoa")
+                        .HasColumnType("text");
+
                     b.Property<string>("MatKhau")
                         .IsRequired()
                         .HasColumnType("text");
+
+                    b.Property<DateTime>("NgayTao")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<int?>("NguoiTaoId")
+                        .HasColumnType("integer");
 
                     b.Property<string>("TenDangNhap")
                         .IsRequired()
@@ -79,12 +88,47 @@ namespace StartupBackend.Migrations
 
                     b.HasIndex("MaCTDT");
 
+                    b.HasIndex("MaKhoa");
+
                     b.HasIndex("TenDangNhap")
                         .IsUnique();
 
                     b.HasIndex("VaiTroId");
 
                     b.ToTable("TaiKhoans");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            Email = "admin@system.com",
+                            HoTenNguoiDung = "Root Admin",
+                            MatKhau = "$2a$11$QOTcdCJGGY2d0VufiekpIOV/dXPsVT6AV6D3foJHCAO51DcNVQLJa",
+                            NgayTao = new DateTime(2026, 5, 2, 14, 9, 15, 189, DateTimeKind.Utc).AddTicks(9042),
+                            TenDangNhap = "admin",
+                            TenantId = "HCMCOU",
+                            TrangThai = "Hoạt động",
+                            VaiTroId = 1
+                        });
+                });
+
+            modelBuilder.Entity("StartupBackend.Models.Khoas", b =>
+                {
+                    b.Property<string>("MaKhoa")
+                        .HasColumnType("text");
+
+                    b.Property<string>("MaCTDT")
+                        .HasColumnType("text");
+
+                    b.Property<string>("TenKhoa")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.HasKey("MaKhoa");
+
+                    b.HasIndex("MaCTDT");
+
+                    b.ToTable("Khoas");
                 });
 
             modelBuilder.Entity("StartupBackend.Models.PhanCongBienSoan", b =>
@@ -132,7 +176,7 @@ namespace StartupBackend.Migrations
                     b.ToTable("ChuongTrinhDaoTaos");
                 });
 
-            modelBuilder.Entity("StartupBackend.Models.Roles+VaiTro", b =>
+            modelBuilder.Entity("StartupBackend.Models.Roles", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -147,6 +191,23 @@ namespace StartupBackend.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("VaiTros");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            TenVaiTro = "ADMIN"
+                        },
+                        new
+                        {
+                            Id = 2,
+                            TenVaiTro = "MANAGER"
+                        },
+                        new
+                        {
+                            Id = 3,
+                            TenVaiTro = "COMPILER"
+                        });
                 });
 
             modelBuilder.Entity("StartupBackend.Models.Subjects", b =>
@@ -185,7 +246,11 @@ namespace StartupBackend.Migrations
                         .WithMany("TaiKhoans")
                         .HasForeignKey("MaCTDT");
 
-                    b.HasOne("StartupBackend.Models.Roles+VaiTro", "VaiTro")
+                    b.HasOne("StartupBackend.Models.Khoas", "Khoa")
+                        .WithMany()
+                        .HasForeignKey("MaKhoa");
+
+                    b.HasOne("StartupBackend.Models.Roles", "VaiTro")
                         .WithMany("TaiKhoans")
                         .HasForeignKey("VaiTroId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -193,7 +258,18 @@ namespace StartupBackend.Migrations
 
                     b.Navigation("ChuongTrinhDaoTao");
 
+                    b.Navigation("Khoa");
+
                     b.Navigation("VaiTro");
+                });
+
+            modelBuilder.Entity("StartupBackend.Models.Khoas", b =>
+                {
+                    b.HasOne("StartupBackend.Models.Programs", "ChuongTrinhDaoTao")
+                        .WithMany()
+                        .HasForeignKey("MaCTDT");
+
+                    b.Navigation("ChuongTrinhDaoTao");
                 });
 
             modelBuilder.Entity("StartupBackend.Models.PhanCongBienSoan", b =>
@@ -238,7 +314,7 @@ namespace StartupBackend.Migrations
                     b.Navigation("TaiKhoans");
                 });
 
-            modelBuilder.Entity("StartupBackend.Models.Roles+VaiTro", b =>
+            modelBuilder.Entity("StartupBackend.Models.Roles", b =>
                 {
                     b.Navigation("TaiKhoans");
                 });

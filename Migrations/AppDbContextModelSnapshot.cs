@@ -57,8 +57,8 @@ namespace StartupBackend.Migrations
                     b.Property<DateTime>("NgayTao")
                         .HasColumnType("timestamp with time zone");
 
-                    b.Property<string>("NguoiTao")
-                        .HasColumnType("text");
+                    b.Property<int?>("NguoiTaoId")
+                        .HasColumnType("integer");
 
                     b.Property<string>("TenDangNhap")
                         .IsRequired()
@@ -100,8 +100,8 @@ namespace StartupBackend.Migrations
                             Id = 1,
                             Email = "admin@system.com",
                             HoTenNguoiDung = "Root Admin",
-                            MatKhau = "$2a$11$ysYS/qhQhg1fZEn/OZZboODtCMocdf.EyA5jiSiBUJlzS.MQOJhcS",
-                            NgayTao = new DateTime(2026, 4, 6, 10, 40, 42, 401, DateTimeKind.Utc).AddTicks(8647),
+                            MatKhau = "$2a$11$QOTcdCJGGY2d0VufiekpIOV/dXPsVT6AV6D3foJHCAO51DcNVQLJa",
+                            NgayTao = new DateTime(2026, 5, 2, 14, 9, 15, 189, DateTimeKind.Utc).AddTicks(9042),
                             TenDangNhap = "admin",
                             TenantId = "HCMCOU",
                             TrangThai = "Hoạt động",

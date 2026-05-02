@@ -30,13 +30,13 @@ namespace StartupBackend.Models
         // khoa ngoai toi chuong trinh dao tao
         public string? MaCTDT { get; set; }
         [ForeignKey("MaCTDT")]
-        public Programs ChuongTrinhDaoTao { get; set; }
+        public Programs ChuongTrinhDaoTao { get; set; } 
 
         public string? HocHam { get; set; }
         public string? HocVi { get; set; }
         public string? TrinhDoChuyenMon { get; set; }
         public DateTime NgayTao { get; set; } = DateTime.UtcNow;
-        public string? NguoiTao { get; set; } 
+        public int? NguoiTaoId { get; set; } 
         public string? MaKhoa { get; set; }
         [ForeignKey("MaKhoa")]
         public Khoas Khoa { get; set; }

@@ -93,14 +93,6 @@ builder.Services.AddCors(options =>
 
 var app = builder.Build();
 
-// Auto migrate database 
-using (var scope = app.Services.CreateScope())
-{
-    var dbContext = scope.ServiceProvider.GetRequiredService<AppDbContext>();
-    dbContext.Database.Migrate(); // Tự động tạo bảng nếu chưa có
-}
-
-
 app.UseSwagger();
 app.UseSwaggerUI();
 
@@ -111,5 +103,35 @@ app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
+
+// tạo data seeding
+using (var scope = app.Services.CreateScope())
+{
+    var context = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+
+    // tự động chạy Migration cập nhật DB 
+    context.Database.Migrate();
+
+    if (!context.TaiKhoans.Any(t => t.VaiTroId == 1))
+    {
+        var rootAdmin = new StartupBackend.Models.Accounts 
+        {
+            TenDangNhap = "admin",
+            MatKhau = BCrypt.Net.BCrypt.HashPassword("Admin@123"),
+            HoTenNguoiDung = "Root Admin",
+            Email = "admin@startup.com",
+            TenantId = "HCMOU",
+            VaiTroId = 1, 
+            TrangThai = "Hoạt động", 
+            NguoiTaoId = null,
+            MaCTDT = null
+        };
+
+        context.TaiKhoans.Add(rootAdmin);
+        context.SaveChanges();
+
+        Console.WriteLine("Đã khởi tạo ROOT ADMIN!");
+    }
+}
 
 app.Run();

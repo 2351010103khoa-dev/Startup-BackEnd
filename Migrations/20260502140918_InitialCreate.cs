@@ -4,6 +4,8 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 #nullable disable
 
+#pragma warning disable CA1814 // Prefer jagged arrays over multidimensional
+
 namespace StartupBackend.Migrations
 {
     /// <inheritdoc />
@@ -36,6 +38,24 @@ namespace StartupBackend.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_VaiTros", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Khoas",
+                columns: table => new
+                {
+                    MaKhoa = table.Column<string>(type: "text", nullable: false),
+                    TenKhoa = table.Column<string>(type: "text", nullable: false),
+                    MaCTDT = table.Column<string>(type: "text", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Khoas", x => x.MaKhoa);
+                    table.ForeignKey(
+                        name: "FK_Khoas_ChuongTrinhDaoTaos_MaCTDT",
+                        column: x => x.MaCTDT,
+                        principalTable: "ChuongTrinhDaoTaos",
+                        principalColumn: "MaCTDT");
                 });
 
             migrationBuilder.CreateTable(
@@ -76,7 +96,10 @@ namespace StartupBackend.Migrations
                     MaCTDT = table.Column<string>(type: "text", nullable: true),
                     HocHam = table.Column<string>(type: "text", nullable: true),
                     HocVi = table.Column<string>(type: "text", nullable: true),
-                    TrinhDoChuyenMon = table.Column<string>(type: "text", nullable: true)
+                    TrinhDoChuyenMon = table.Column<string>(type: "text", nullable: true),
+                    NgayTao = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    NguoiTaoId = table.Column<int>(type: "integer", nullable: true),
+                    MaKhoa = table.Column<string>(type: "text", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -86,6 +109,11 @@ namespace StartupBackend.Migrations
                         column: x => x.MaCTDT,
                         principalTable: "ChuongTrinhDaoTaos",
                         principalColumn: "MaCTDT");
+                    table.ForeignKey(
+                        name: "FK_TaiKhoans_Khoas_MaKhoa",
+                        column: x => x.MaKhoa,
+                        principalTable: "Khoas",
+                        principalColumn: "MaKhoa");
                     table.ForeignKey(
                         name: "FK_TaiKhoans_VaiTros_VaiTroId",
                         column: x => x.VaiTroId,
@@ -121,6 +149,26 @@ namespace StartupBackend.Migrations
                         onDelete: ReferentialAction.Cascade);
                 });
 
+            migrationBuilder.InsertData(
+                table: "VaiTros",
+                columns: new[] { "Id", "TenVaiTro" },
+                values: new object[,]
+                {
+                    { 1, "ADMIN" },
+                    { 2, "MANAGER" },
+                    { 3, "COMPILER" }
+                });
+
+            migrationBuilder.InsertData(
+                table: "TaiKhoans",
+                columns: new[] { "Id", "Email", "HoTenNguoiDung", "HocHam", "HocVi", "MaCTDT", "MaKhoa", "MatKhau", "NgayTao", "NguoiTaoId", "TenDangNhap", "TenantId", "TrangThai", "TrinhDoChuyenMon", "VaiTroId" },
+                values: new object[] { 1, "admin@system.com", "Root Admin", null, null, null, null, "$2a$11$QOTcdCJGGY2d0VufiekpIOV/dXPsVT6AV6D3foJHCAO51DcNVQLJa", new DateTime(2026, 5, 2, 14, 9, 15, 189, DateTimeKind.Utc).AddTicks(9042), null, "admin", "HCMCOU", "Hoạt động", null, 1 });
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Khoas_MaCTDT",
+                table: "Khoas",
+                column: "MaCTDT");
+
             migrationBuilder.CreateIndex(
                 name: "IX_MonHocs_ChuongTrinhDaoTaoMa",
                 table: "MonHocs",
@@ -148,6 +196,11 @@ namespace StartupBackend.Migrations
                 column: "MaCTDT");
 
             migrationBuilder.CreateIndex(
+                name: "IX_TaiKhoans_MaKhoa",
+                table: "TaiKhoans",
+                column: "MaKhoa");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_TaiKhoans_TenDangNhap",
                 table: "TaiKhoans",
                 column: "TenDangNhap",
@@ -172,10 +225,13 @@ namespace StartupBackend.Migrations
                 name: "TaiKhoans");
 
             migrationBuilder.DropTable(
-                name: "ChuongTrinhDaoTaos");
+                name: "Khoas");
 
             migrationBuilder.DropTable(
                 name: "VaiTros");
+
+            migrationBuilder.DropTable(
+                name: "ChuongTrinhDaoTaos");
         }
     }
 }
