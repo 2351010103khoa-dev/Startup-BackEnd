@@ -19,7 +19,7 @@ namespace StartupBackend.Controllers
             _context = context;
         }
 
-        // api thêm chương trình đào tạo mới
+// api thêm chương trình đào tạo mới
         [HttpPost("create-program")]
         public async Task<IActionResult> CreateProgram([FromBody] ProgramsDTOs request)
         {
@@ -42,7 +42,7 @@ namespace StartupBackend.Controllers
             return Ok(new { message = "Thêm chương trình đào tạo thành công!", maCTDT = newProgram.MaCTDT });
         }
 
-        // api lấy danh sách chương trình đào tạo
+// api lấy danh sách chương trình đào tạo
         [HttpGet("get-list")]
         public async Task<IActionResult> GetPrograms()
         {
