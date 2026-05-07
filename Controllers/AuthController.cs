@@ -27,7 +27,7 @@ namespace StartupBackend.Controllers
             _emailService = emailService;
         }
 
-        // API đăng nhập
+// API đăng nhập
         [HttpPost("login")]
         public async Task<IActionResult> Login([FromBody] LoginRequest request)
         {
@@ -73,7 +73,7 @@ namespace StartupBackend.Controllers
             });
         }
 
-        // đổi mật khẩu lần đầu
+// đổi mật khẩu lần đầu
         [HttpPost("change-password-first")]
         public async Task<IActionResult> ChangePasswordFirst([FromBody] ChangePasswordFirstRequest request)
         {
@@ -98,7 +98,7 @@ namespace StartupBackend.Controllers
             return Ok(new { message = "Mật khẩu đã được đổi, hãy đăng nhập lại." });
         }
 
-        // quên mật khẩu (/auth/forgot-password)
+// quên mật khẩu (/auth/forgot-password)
         [HttpPost("forgot-password")]
         public async Task<IActionResult> ForgotPassword([FromBody] ForgotPasswordRequest request)
         {
@@ -128,7 +128,7 @@ namespace StartupBackend.Controllers
             var resetToken = tokenHandler.WriteToken(token);
 
             // GỬI MAIL THẬT
-            var frontendResetUrl = $"http://localhost:3000/reset-password?token={resetToken}"; // Sửa lại link này theo Frontend của bro
+            var frontendResetUrl = $"http://localhost:3000/reset-password?token={resetToken}"; // Sửa lại link này theo fe
 
             var emailBody = $@"
                 <div style='font-family: Arial, sans-serif; padding: 20px;'>
@@ -146,7 +146,7 @@ namespace StartupBackend.Controllers
             return Ok(new { message = "Liên kết đặt lại mật khẩu đã được gửi." });
         }
 
-        // đặt lại mật khẩu (/auth/reset-password)
+// đặt lại mật khẩu (/auth/reset-password)
         [HttpPost("reset-password")]
         public async Task<IActionResult> ResetPassword([FromBody] ResetPasswordRequest request)
         {
@@ -184,7 +184,6 @@ namespace StartupBackend.Controllers
             }
             catch (Exception ex)
             {
-                // Nếu Token sai, bịa đặt hoặc hết hạn
                 return BadRequest(new { message = "Error: " + ex.Message });
             }
         }

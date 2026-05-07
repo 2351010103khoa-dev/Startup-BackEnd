@@ -9,7 +9,7 @@ namespace StartupBackend.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    [Authorize] // Vẫn cần khiên bảo vệ, chỉ người có Token mới được thêm Khoa
+    [Authorize] 
     public class KhoaController : ControllerBase
     {
         private readonly AppDbContext _context;
@@ -19,7 +19,7 @@ namespace StartupBackend.Controllers
             _context = context;
         }
 
-        // api thêmkhoa mới
+// api thêmkhoa mới
         [HttpPost("create-khoa")]
         public async Task<IActionResult> CreateKhoa([FromBody] KhoaDTOs request)
         {
@@ -42,7 +42,7 @@ namespace StartupBackend.Controllers
             return Ok(new { message = "Thêm khoa thành công!", maKhoa = newKhoa.MaKhoa });
         }
 
-        // lấy danh sách khoa
+// lấy danh sách khoa
         [HttpGet("get-list")]
         public async Task<IActionResult> GetKhoas()
         {

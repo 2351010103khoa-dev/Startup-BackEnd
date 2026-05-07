@@ -53,6 +53,7 @@ builder.Services.AddSwaggerGen(c =>
         }
     });
 });
+
 // khởi tạo chuỗi kết nối
 var defaultConn = builder.Configuration.GetConnectionString("DefaultConnection");
 var envDatabaseUrl = builder.Configuration["DATABASE_URL"];
@@ -72,6 +73,7 @@ else
 {
     finalConnectionString = rawUrl;
 }
+
 // kết nối dbcontext 
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseNpgsql(finalConnectionString));
@@ -86,8 +88,8 @@ builder.Services.AddCors(options =>
     options.AddPolicy("AllowAll", policy =>
     {
         policy.AllowAnyOrigin()   // cho phép mọi domain => mai mốt chỉnh lại domain cụ thể của fe sau
-              .AllowAnyMethod()   // cho phép mọi method HTTP (GET, POST, PUT, DELETE, OPTIONS)
-              .AllowAnyHeader();  // cho phép mọi loại Header (kể cả Header chứa Token)
+              .AllowAnyMethod()   
+              .AllowAnyHeader();  
     });
 });
 

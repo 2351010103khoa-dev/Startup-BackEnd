@@ -17,14 +17,14 @@ namespace StartupBackend.Controllers
             _context = context;
         }
 
-        // lấy danh sách vai trò
+// lấy danh sách vai trò
         [HttpGet("get-list")]
         public async Task<ActionResult<IEnumerable<Roles>>> GetRoles()
         {
             return await _context.VaiTros.ToListAsync();
         }
 
-        // Thêm vai trò mới
+// Thêm vai trò mới
         [HttpPost("create-role")]
         public async Task<ActionResult<Roles>> CreateRole(Roles role)
         {
