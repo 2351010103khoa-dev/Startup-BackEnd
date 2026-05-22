@@ -102,35 +102,37 @@ namespace StartupBackend.Controllers
         [HttpPost("forgot-password")]
         public async Task<IActionResult> ForgotPassword([FromBody] ForgotPasswordRequest request)
         {
-            // tìm user theo Email 
-            var user = await _context.TaiKhoans.FirstOrDefaultAsync(u => u.Email == request.Email);
-
-            if (user == null)
+            try
             {
-                return Ok(new { message = "Liên kết đặt lại mật khẩu đã được gửi." });
-            }
+                // tìm user theo Email 
+                var user = await _context.TaiKhoans.FirstOrDefaultAsync(u => u.Email == request.Email);
 
-            // tạo token chứa email, hạn 15p
-            var tokenHandler = new JwtSecurityTokenHandler();
-            var key = Encoding.UTF8.GetBytes(_configuration["Jwt:Key"]!); 
-
-            var tokenDescriptor = new SecurityTokenDescriptor
-            {
-                Subject = new ClaimsIdentity(new[]
+                if (user == null)
                 {
+                    return Ok(new { message = "Liên kết đặt lại mật khẩu đã được gửi." });
+                }
+
+                // tạo token chứa email, hạn 15p
+                var tokenHandler = new JwtSecurityTokenHandler();
+                var key = Encoding.UTF8.GetBytes(_configuration["Jwt:Key"]!);
+
+                var tokenDescriptor = new SecurityTokenDescriptor
+                {
+                    Subject = new ClaimsIdentity(new[]
+                    {
                     new Claim(ClaimTypes.Email, user.Email)
                 }),
-                Expires = DateTime.UtcNow.AddMinutes(15),
-                SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
-            };
+                    Expires = DateTime.UtcNow.AddMinutes(15),
+                    SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
+                };
 
-            var token = tokenHandler.CreateToken(tokenDescriptor);
-            var resetToken = tokenHandler.WriteToken(token);
+                var token = tokenHandler.CreateToken(tokenDescriptor);
+                var resetToken = tokenHandler.WriteToken(token);
 
-            // GỬI MAIL THẬT
-            var frontendResetUrl = $"http://localhost:3000/reset-password?token={resetToken}"; // Sửa lại link này theo fe
+                // GỬI MAIL THẬT
+                var frontendResetUrl = $"http://localhost:3000/reset-password?token={resetToken}"; // Sửa lại link này theo fe
 
-            var emailBody = $@"
+                var emailBody = $@"
                 <div style='font-family: Arial, sans-serif; padding: 20px;'>
                     <h2 style='color: #333;'>Yêu cầu đặt lại mật khẩu</h2>
                     <p>Chào bạn,</p>
@@ -141,9 +143,21 @@ namespace StartupBackend.Controllers
                     
                 </div>";
 
-            await _emailService.SendEmailAsync(user.Email, "Đặt lại mật khẩu", emailBody);
+                await _emailService.SendEmailAsync(user.Email, "Đặt lại mật khẩu", emailBody);
 
-            return Ok(new { message = "Liên kết đặt lại mật khẩu đã được gửi." });
+                return Ok(new { message = "Liên kết đặt lại mật khẩu đã được gửi." });
+            }
+            catch (Exception ex)
+            {
+                var errorMessage = ex.InnerException != null ? ex.InnerException.Message : ex.Message;
+
+                return StatusCode(500, new
+                {
+                    message = "Lỗi hệ thống khi gửi email!",
+                    chiTietLoi = errorMessage,
+                });
+            }
+           
         }
 
 // đặt lại mật khẩu (/auth/reset-password)
