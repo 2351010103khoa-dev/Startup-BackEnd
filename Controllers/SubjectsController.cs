@@ -60,7 +60,7 @@ namespace StartupBackend.Controllers
         }
 
         // Lấy danh sách môn học được phân công cho người biên soạn
-        [HttpGet("/assigned")]
+        [HttpGet]
         [Authorize]
         public async Task<IActionResult> GetMyAssignedSubjects()
         {
