@@ -109,7 +109,7 @@ namespace StartupBackend.Controllers
 
                 if (user == null)
                 {
-                    return Ok(new { message = "Liên kết đặt lại mật khẩu đã được gửi." });
+                    return BadRequest(new {message = "Không tìm thấy Email này!"});
                 }
 
                 // tạo token chứa email, hạn 15p

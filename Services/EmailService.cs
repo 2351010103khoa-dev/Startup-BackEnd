@@ -18,7 +18,7 @@ namespace StartupBackend.Services
         {
             // khởi tạo các thông tin của email được gửi đi
             var email = new MimeMessage();
-            email.From.Add(new MailboxAddress(_config["EmailSettings:SenderName"], _config["EmailSettings:EmailUsername"]));
+            email.From.Add(new MailboxAddress(_config["EmailSettings:SenderName"], _config["EmailSettings:SenderEmail"]));
             email.To.Add(MailboxAddress.Parse(toEmail));
             email.Subject = subject;
             email.Body = new TextPart(TextFormat.Html) { Text = htmlMessage };
