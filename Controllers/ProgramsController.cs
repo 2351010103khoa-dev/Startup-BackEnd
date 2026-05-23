@@ -7,7 +7,7 @@ using StartupBackend.Models;
 
 namespace StartupBackend.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("api/programs")]
     [ApiController]
     [Authorize] 
     public class ProgramsController : ControllerBase
@@ -20,7 +20,7 @@ namespace StartupBackend.Controllers
         }
 
 // api thêm chương trình đào tạo mới
-        [HttpPost("create-program")]
+        [HttpPost]
         public async Task<IActionResult> CreateProgram([FromBody] ProgramsDTOs request)
         {
             // check mã trùng
@@ -43,7 +43,7 @@ namespace StartupBackend.Controllers
         }
 
 // api lấy danh sách chương trình đào tạo
-        [HttpGet("get-list")]
+        [HttpGet]
         public async Task<IActionResult> GetPrograms()
         {
             var danhSach = await _context.ChuongTrinhDaoTaos.ToListAsync();

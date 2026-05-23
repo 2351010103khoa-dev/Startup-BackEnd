@@ -7,7 +7,7 @@ using StartupBackend.Models;
 
 namespace StartupBackend.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("api/subjects")]
     [ApiController]
     [Authorize]
     public class SubjectsController : ControllerBase
@@ -20,7 +20,7 @@ namespace StartupBackend.Controllers
         }
 
         //Thêm mới môn học
-        [HttpPost("create-subject")]
+        [HttpPost]
         public async Task<IActionResult> CreateSubject([FromBody] SubjectCreateDTOs request)
         {
             if (await _context.MonHocs.AnyAsync(s => s.MaMonHoc == request.MaMonHoc))
@@ -60,7 +60,7 @@ namespace StartupBackend.Controllers
         }
 
         // Lấy danh sách môn học được phân công cho người biên soạn
-        [HttpGet("my-assigned-subjects")]
+        [HttpGet("/assigned")]
         [Authorize]
         public async Task<IActionResult> GetMyAssignedSubjects()
         {

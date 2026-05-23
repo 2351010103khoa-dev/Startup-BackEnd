@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace StartupBackend.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("api/roles")]
     [ApiController]
     public class RolesController : ControllerBase
     {
@@ -18,14 +18,14 @@ namespace StartupBackend.Controllers
         }
 
 // lấy danh sách vai trò
-        [HttpGet("get-list")]
+        [HttpGet]
         public async Task<ActionResult<IEnumerable<Roles>>> GetRoles()
         {
             return await _context.VaiTros.ToListAsync();
         }
 
 // Thêm vai trò mới
-        [HttpPost("create-role")]
+        [HttpPost]
         public async Task<ActionResult<Roles>> CreateRole(Roles role)
         {
             _context.VaiTros.Add(role);
