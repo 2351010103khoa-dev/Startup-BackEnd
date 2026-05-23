@@ -141,7 +141,7 @@ namespace StartupBackend.Controllers
         }
 
 // cập nhật tài khoản
-        [HttpPut("/{id}")]
+        [HttpPut("{id}")]
         [Authorize]
         public async Task<IActionResult> UpdateAccount(int id, [FromBody] UpdateAccountRequest request)
         {
@@ -195,7 +195,7 @@ namespace StartupBackend.Controllers
         }
 
 // xóa tài khoản
-        [HttpDelete("/{id}")]
+        [HttpDelete("{id}")]
         [Authorize]
         public async Task<IActionResult> DeleteAccount(int id)
         {
