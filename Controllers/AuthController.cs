@@ -155,6 +155,7 @@ namespace StartupBackend.Controllers
                 {
                     message = "Lỗi hệ thống khi gửi email!",
                     chiTietLoi = errorMessage,
+                    stackTrace = ex.StackTrace,
                 });
             }
            
