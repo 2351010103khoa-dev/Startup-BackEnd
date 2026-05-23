@@ -10,7 +10,7 @@ using System.Security.Claims;
 
 namespace StartupBackend.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("api/accounts")]
     [ApiController]
     [Authorize]
     public class AccountsController : ControllerBase
@@ -23,7 +23,7 @@ namespace StartupBackend.Controllers
         }
 
 // tạo tài khoản mới
-        [HttpPost("create-accounts")]
+        [HttpPost]
         public async Task<IActionResult> CreateAccount([FromBody] AccountDTOs request)
         {
             var creatorIdClaim = User.FindFirstValue(ClaimTypes.NameIdentifier); 
@@ -68,7 +68,7 @@ namespace StartupBackend.Controllers
         }
 
 // lấy danh sách tài khoản
-        [HttpGet("get-list")]
+        [HttpGet]
         public async Task<IActionResult> GetAccounts(
             [FromQuery] int page = 1,
             [FromQuery] int limit = 4,
@@ -141,7 +141,7 @@ namespace StartupBackend.Controllers
         }
 
 // cập nhật tài khoản
-        [HttpPut("update-account/{id}")]
+        [HttpPut("/{id}")]
         [Authorize]
         public async Task<IActionResult> UpdateAccount(int id, [FromBody] UpdateAccountRequest request)
         {
@@ -195,7 +195,7 @@ namespace StartupBackend.Controllers
         }
 
 // xóa tài khoản
-        [HttpDelete("delete-account/{id}")]
+        [HttpDelete("/{id}")]
         [Authorize]
         public async Task<IActionResult> DeleteAccount(int id)
         {

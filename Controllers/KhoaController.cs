@@ -7,7 +7,7 @@ using StartupBackend.Models;
 
 namespace StartupBackend.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("api/faculties")]
     [ApiController]
     [Authorize] 
     public class KhoaController : ControllerBase
@@ -20,7 +20,7 @@ namespace StartupBackend.Controllers
         }
 
 // api thêmkhoa mới
-        [HttpPost("create-khoa")]
+        [HttpPost]
         public async Task<IActionResult> CreateKhoa([FromBody] KhoaDTOs request)
         {
             // kiểm tra mã khoa
@@ -43,7 +43,7 @@ namespace StartupBackend.Controllers
         }
 
 // lấy danh sách khoa
-        [HttpGet("get-list")]
+        [HttpGet]
         public async Task<IActionResult> GetKhoas()
         {
             var danhSachKhoa = await _context.Khoas.ToListAsync();
