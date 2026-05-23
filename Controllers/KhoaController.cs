@@ -19,7 +19,7 @@ namespace StartupBackend.Controllers
             _context = context;
         }
 
-// api thêmkhoa mới
+// api thêm khoa mới
         [HttpPost("create-khoa")]
         public async Task<IActionResult> CreateKhoa([FromBody] KhoaDTOs request)
         {
