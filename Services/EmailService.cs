@@ -33,7 +33,7 @@ namespace StartupBackend.Services
                 string host = _config["EmailSettings:EmailHost"]!;
                 int port = int.Parse(_config["EmailSettings:EmailPort"] ?? "587");
 
-                await smtp.ConnectAsync(_config["EmailSettings:EmailHost"], int.Parse(_config["EmailSettings:EmailPort"]), SecureSocketOptions.StartTls);
+                await smtp.ConnectAsync(_config["EmailSettings:EmailHost"], int.Parse(_config["EmailSettings:EmailPort"]), SecureSocketOptions.SslOnConnect);
                 
                 // xác thực với server smtp băng tài khoản đã đăng ký trong appsettings.json
                 await smtp.AuthenticateAsync(_config["EmailSettings:EmailUsername"], _config["EmailSettings:EmailPassword"]);
