@@ -7,7 +7,7 @@
         public string FullName { get; set; } = string.Empty;
         public int RoleId { get; set; }
         public string Khoa { get; set; } = string.Empty;
-        public string? Programs { get; set; }
+        public string? Programs { get; set; } = string.Empty;
         public string? HocHam { get; set; } = string.Empty;
         public string? HocVi { get; set; } = string.Empty;
         public string? TrinhDoChuyenMon { get; set; } = string.Empty;

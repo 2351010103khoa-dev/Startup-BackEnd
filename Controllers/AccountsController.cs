@@ -22,49 +22,78 @@ namespace StartupBackend.Controllers
             _context = context;
         }
 
-// tạo tài khoản mới
+        // tạo tài khoản mới
         [HttpPost]
         public async Task<IActionResult> CreateAccount([FromBody] AccountDTOs request)
         {
-            var creatorIdClaim = User.FindFirstValue(ClaimTypes.NameIdentifier); 
-            if (creatorIdClaim == null) return Unauthorized(new { message = "Không xác định được người dùng!" });
-
-            int creatorId = int.Parse(creatorIdClaim);
-
-            var creator = await _context.TaiKhoans.FindAsync(creatorId);
-            if (creator == null) return Unauthorized();
-
-            if (_context.TaiKhoans.Any(u => u.TenDangNhap == request.Username))
-                return BadRequest(new { message = "Tên đăng nhập đã tồn tại!" });
-
-            if (_context.TaiKhoans.Any(u => u.Email == request.Email))
-                return BadRequest(new { message = "Email đã tồn tại!" });
-
-            var newAccount = new Accounts
+            try
             {
-                TenDangNhap = request.Username,
-                Email = request.Email,
-                HoTenNguoiDung = request.FullName,
-                VaiTroId = request.RoleId,
-                MaKhoa = request.Khoa,
-                TrangThai = "Hoạt động",
-                MaCTDT = request.Programs,
-                HocHam = request.HocHam,
-                HocVi = request.HocVi,
-                TrinhDoChuyenMon = request.TrinhDoChuyenMon,
+                var creatorIdClaim = User.FindFirstValue(ClaimTypes.NameIdentifier);
+                if (creatorIdClaim == null) return Unauthorized(new { message = "Không xác định được người dùng!" });
 
-                // mật khẩu mặc định
-                MatKhau = BCrypt.Net.BCrypt.HashPassword("abc123"),
+                int creatorId = int.Parse(creatorIdClaim);
 
-                TenantId = creator.TenantId, 
-                NgayTao = DateTime.UtcNow,   
-                NguoiTaoId = creator.Id
-            };
+                var creator = await _context.TaiKhoans.FindAsync(creatorId);
+                if (creator == null) return Unauthorized();
 
-            _context.TaiKhoans.Add(newAccount);
-            await _context.SaveChangesAsync();
+                if (_context.TaiKhoans.Any(u => u.TenDangNhap == request.Username))
+                    return BadRequest(new { message = "Tên đăng nhập đã tồn tại!" });
 
-            return Ok(new { message = "Tạo tài khoản thành công!", accountId = newAccount.Id });
+                if (_context.TaiKhoans.Any(u => u.Email == request.Email))
+                    return BadRequest(new { message = "Email đã tồn tại!" });
+
+                //logic xử lí mã CTĐT
+                var programId = request.Programs;
+
+                if (programId == null || programId.ToString() == "")
+                    programId = creator.MaCTDT; // tài khoản được tạo sẽ được thừa hưởng ctđt của người tạo
+                
+                if (string.IsNullOrWhiteSpace(programId?.ToString()))
+                    programId = null; // nếu là chuỗi rỗng thì set về null
+
+                if (programId != null)
+                {
+                    var isProgramExists = await _context.ChuongTrinhDaoTaos.AnyAsync(p => p.MaCTDT == programId);
+                    if (!isProgramExists)
+                    {
+                        return BadRequest(new { message = "Mã chương trình đào tạo không tồn tại!" });
+                    }
+                }
+                var newAccount = new Accounts
+                {
+                    TenDangNhap = request.Username,
+                    Email = request.Email,
+                    HoTenNguoiDung = request.FullName,
+                    VaiTroId = request.RoleId,
+                    MaKhoa = request.Khoa,
+                    TrangThai = "Hoạt động",
+                    MaCTDT = programId,
+                    HocHam = request.HocHam,
+                    HocVi = request.HocVi,
+                    TrinhDoChuyenMon = request.TrinhDoChuyenMon,
+
+                    // mật khẩu mặc định
+                    MatKhau = BCrypt.Net.BCrypt.HashPassword("abc123"),
+
+                    TenantId = creator.TenantId,
+                    NgayTao = DateTime.UtcNow,
+                    NguoiTaoId = creator.Id
+                };
+
+                _context.TaiKhoans.Add(newAccount);
+                await _context.SaveChangesAsync();
+
+                return Ok(new { message = "Tạo tài khoản thành công!", accountId = newAccount.Id });
+            }
+            catch (Exception ex)
+            {
+                var errorMessage = ex.InnerException != null ? ex.InnerException.Message : ex.Message;
+                return StatusCode(500, new
+                {
+                    message = "Lỗi hệ thống khi tạo tài khoản!",
+                    chiTietLoi = errorMessage
+                });
+            }
         }
 
 // lấy danh sách tài khoản
